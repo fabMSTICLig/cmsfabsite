@@ -1,0 +1,16 @@
+config
+*.pyc
+__pycache__/
+*.swp
+dist
+static
+*.sqlite3
+node_modules
+venv
+venv*
+*.log
+.env.local
+local_settings.py
+db.sqlite3
+.vscode
+content

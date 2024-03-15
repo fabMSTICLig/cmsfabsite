@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<h1 class="uga-page-title">Liste postes</h1>
+<form action="{% url "list" %}" method="post">
+{% csrf_token %}
+<fieldset>
+    <legend><h3>Categorie</h3></legend>
+    {% for cat in categories %}
+        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ cat }}">
+        <label for="choice{{ forloop.counter }}">{{ cat }}</label><br>
+    {% endfor %}
+</fieldset>
+<button class="btn btn-primary" type="submit" name="action" value="refresh">Refresh</button>
+  {% if error %}
+  <div class="m-3 p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3">
+    {{ error }}
+  </div>
+  {% endif %}
+<div class="mb-3 row">
+    <label class="form-label col-sm-2" for="slug">Nom fichier: </label>
+    <input class="form-control col-sm-10" type="text" name="slug" id="slug"/>
+  </div>
+  <div class="mb-3 row">
+    <label class="form-label col-sm-2" for="email">Email: </label>
+    <input class="form-control col-sm-10" type="email" name="email" id="email"/>
+  </div>
+  <div class="mb-3 row">
+    <label class="form-label col-sm-2" for="token">Token: </label>
+    <input class="form-control col-sm-10" type="checkbox" id="token" name="token" />
+  </div>
+  <button class="btn btn-primary" type="submit"  name="action" value="new">Nouveau</button>
+</form>
+{% if selected_cat %}
+<h1>{{ selected_cat }}</h1>
+<ul class="list-group">
+    {% for file in fileslist %}
+    <li class="list-group-item"><a href="{% url 'edit' cat=selected_cat slug=file.stem %}">{{ file.stem }}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

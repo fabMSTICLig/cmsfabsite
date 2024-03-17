@@ -1,0 +1,26 @@
+import os
+
+DEBUG=False
+
+# Web acces protections
+SITE_URL = 'https://example.fr'
+ALLOWED_HOSTS = ['example.fr']
+
+CSRF_COOKIE_DOMAIN="example.fr"
+CSRF_TRUSTED_ORIGINS=["example.fr"]
+
+# Web acces protections
+ALLOWED_HOSTS = ['localhost']
+if DEBUG == False :
+    SESSION_COOKIE_SECURE=True
+    CSRF_COOKIE_SECURE=True
+    USE_X_FORWARDED_HOST=True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+if DEBUG == True:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    STATIC_ROOT = ''
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, "./static"),
+    ]
+

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.exceptions import BadRequest, ValidationError, PermissionDenied
+from django.conf import settings
 
 from PIL import Image
 from io import BytesIO
@@ -137,6 +138,7 @@ def edit(request, cat, slug):
             request,
             "core/editadmin.html",
             {
+                "SITE_URL": settings.SITE_URL,
                 "post": post,
                 "cat": cat,
                 "token": token

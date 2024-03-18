@@ -114,6 +114,10 @@ def edit(request, cat, slug):
         getToken = request.GET.get("token", False)
         if(request.user.is_anonymous and getToken!=token.token):
             raise BadRequest()
+        if(os.path.isfile(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md")):
+            origin_post = frontmatter.load(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md")
+        else:
+            origin_post = None
         if(request.POST.get("title", False)):
             post = frontmatter.Post(html.escape(request.POST["content"]))
             post["title"]=request.POST["title"]
@@ -126,14 +130,14 @@ def edit(request, cat, slug):
             if(file):
                 post["image"]=slug
                 save_image(file, cat, slug)
+            elif(origin_post and origin_post.image):
+                post["image"]=origin_post.image
             with open(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md", "wb") as f:
                 frontmatter.dump(post, f, sort_keys=False)
         post = {}
         if(os.path.isfile(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md")):
             post = frontmatter.load(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md")
             post.content=html.unescape(post.content)
-        print(cat)
-        print(slug)
         return render(
             request,
             "core/editadmin.html",

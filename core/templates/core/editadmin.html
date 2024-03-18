@@ -28,10 +28,12 @@
   </div>
   <div class="mb-3 row">
     <label class="form-label col-sm-2" for="image">Image: </label>
+    {% if post.image %}
     <img
         src="{% url 'image' cat=cat name=post.image %}"
       alt="thumbnail"
     />
+    {% endif %}
     <input
       class="form-control col-sm-10 btn-primary"
       id="thumbnail"

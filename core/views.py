@@ -115,8 +115,8 @@ def edit(request, cat, slug):
             raise BadRequest()
         if(request.POST.get("title", False)):
             post = frontmatter.Post(html.escape(request.POST["content"]))
-            post["slug"]=slug
             post["title"]=request.POST["title"]
+            post["slug"]=slug
             post["date"]=request.POST["date"]
             post["summary"]=request.POST["summary"]
             post["authors"]=request.POST["authors"]
@@ -126,7 +126,7 @@ def edit(request, cat, slug):
                 post["image"]=slug
                 save_image(file, cat, slug)
             with open(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md", "wb") as f:
-                frontmatter.dump(post, f)
+                frontmatter.dump(post, f, sort_keys=False)
         post = {}
         if(os.path.isfile(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md")):
             post = frontmatter.load(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md")

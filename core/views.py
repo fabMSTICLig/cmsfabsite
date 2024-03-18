@@ -130,8 +130,8 @@ def edit(request, cat, slug):
             if(file):
                 post["image"]=slug
                 save_image(file, cat, slug)
-            elif(origin_post and origin_post.image):
-                post["image"]=origin_post.image
+            elif(origin_post and origin_post["image"]):
+                post["image"]=origin_post["image"]
             with open(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md", "wb") as f:
                 frontmatter.dump(post, f, sort_keys=False)
         post = {}

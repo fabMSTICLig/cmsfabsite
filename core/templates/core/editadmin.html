@@ -16,15 +16,15 @@
   </div>
   <div class="mb-3 row">
     <label class="form-label col-sm-2" for="summary">Résumé: </label>
-    <input class="form-control col-sm-10" type="text" name="summary" id="summary" value="{{ post.summary }}"  size="50" required />
+    <input class="form-control col-sm-10" type="text" name="summary" id="summary" value="{{ post.summary }}"  size="50" maxlength="80" required />
   </div>
   <div class="mb-3 row">
     <label class="form-label col-sm-2" for="authors">Auteurs: </label>
-    <input class="form-control col-sm-10" type="text" name="authors" id="authors" placeholder="Prenom1 Nom1, Prenom2 Nom2" value="{{ post.authors }}" required />
+    <input class="form-control col-sm-10" type="text" name="authors" id="authors" placeholder="Prenom1 Nom1, Prenom2 Nom2" value="{{ post.authors }}" maxlength="80" required />
   </div>
   <div class="mb-3 row">
     <label class="form-label col-sm-2" for="tags">Tags: </label>
-    <input class="form-control col-sm-10" type="text" name="tags" id="tags" placeholder="Tag1, Tag2" value="{{ post.tags }}"/>
+    <input class="form-control col-sm-10" type="text" name="tags" id="tags" placeholder="Tag1, Tag2" value="{{ post.tags }}" maxlength="80"/>
   </div>
   <div class="mb-3 row">
     <label class="form-label col-sm-2" for="image">Image: </label>
@@ -52,8 +52,9 @@
   Bonjour,
   </br>
   </br>
-  Voici le lien pour editer votre post {{SITE_URL}}{{request.path}}?token={{ token.token }}
+  Vous êtes venue travailler au fablab MASTIC. Afin de présenter ce qui est réalisé au fablab, nous vous invitons à poster, sur le site du fablab, une photo et quelques lignes présentant vos réalisations. Pour cela vous pouvez remplir le formulaire à l'adresse suivante : {{SITE_URL}}{{request.path}}?token={{ token.token }}.
   </br>
+
   </br>
   L'équipe du fablab
 </div>

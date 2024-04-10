@@ -10,7 +10,7 @@ class AppSettings:
 
     @property
     def CATEGORIES(self):
-        return self._setting("CATEGORIES", ("News", "Projets", "Bricolo"))
+        return self._setting("CATEGORIES", ("news", "projets", "bricolo"))
 
     @property
     def CONTENT_DIRECTORY(self):

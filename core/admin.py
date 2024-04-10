@@ -13,4 +13,4 @@ class SingleTokenAccessAdmin(admin.ModelAdmin):
         return mark_safe("<a href='"+settings.SITE_URL+'/cms/edit/'+obj.slug+"?token="+obj.token+"' >Edit</a>")
 
     def link_show(self,obj):
-        return mark_safe("<a href='"+settings.SITE_URL+'/'+obj.slug+"' >Show</a>")
+        return mark_safe("<a href='"+settings.SITE_URL+'/'+obj.slug+".html' >Show</a>")

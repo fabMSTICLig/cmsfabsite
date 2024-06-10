@@ -2,14 +2,23 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.exceptions import BadRequest, ValidationError, PermissionDenied
 from django.conf import settings
+from django.views.decorators.http import  require_POST
+from django.views.decorators.csrf import csrf_exempt
 
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.template import Context
+
+from cryptography import fernet
 from PIL import Image
 from io import BytesIO
 
 import re
 import os
 import html
+import json
 import array
+from datetime import date
 from pathlib import Path
 import frontmatter
 
@@ -53,6 +62,84 @@ def save_image(photo,cat, name):
     else:
         raise ValidationError("Wrong Image format: '.png', '.jpg', '.jpeg', '.tiff', '.bmp'", code=422)
 
+regexemail = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+# Check slug and create a token if nedeed
+# Send an email if a token is created
+
+def newpost(slug, cat, email, token):
+    if(not slug or not SLUGEX.match(slug)):
+        raise ValueError("Veuillez indiquez un nom de fichier valide [a-z0-9_]")
+    elif(not os.path.exists(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+slug+".md")):
+        if(token and not SingleTokenAccess.objects.filter(slug=cat+"/"+slug).exists()):
+            #Create a new token and send an email
+            sta = SingleTokenAccess(slug=cat+"/"+slug, contact=email)
+            sta.save()
+            context={
+                "SITE_URL": settings.SITE_URL,
+                "slug": slug,
+                "cat": cat,
+                "token": sta
+            }
+            subject = render_to_string(
+                template_name='core/newtoken_subject.txt',
+                context=context
+            ).strip()
+            text_content = render_to_string(
+                template_name='core/newtoken_message.txt',
+                context=context
+            )
+            html_content = render_to_string(
+                template_name='core/newtoken_message.html',
+                context=context
+            )
+            msg = EmailMultiAlternatives(subject, text_content, settings.NOTIFICATION_SENDER, [email])
+            msg.attach_alternative(html_content, "text/html")
+            try:
+                msg.send()
+                #print(msg.message())
+            except:
+                print("fail to send notif to "+email)
+            #return true if token created
+            return True
+        else:
+            #return false if token already exist
+            return False
+    else:
+        raise ValueError("Slug already exist ! ")
+
+#End point to generate a new token
+# This endpoint as no authentification but use encryption for the message.
+@csrf_exempt
+@require_POST
+def gentoken(request):
+    f = fernet.Fernet(app_settings.GENTOKEN_KEY)
+    #get the encrypted infos.
+    infos = request.POST.get("infos", "")
+    if(infos):
+        try:
+            jsoninfos = json.loads(f.decrypt(infos))
+            if('email' in jsoninfos):
+                if(re.fullmatch(regexemail, jsoninfos['email'])):
+                    email = jsoninfos['email']
+                    if(app_settings.ALLOWED_EMAILS):
+                        domain = email.split('@')[1]
+                        if(domain not in app_settings.ALLOWED_EMAILS):
+                            raise BadRequest()
+                    cat = app_settings.CATEGORIES[0]
+                    if('cat' in jsoninfos):
+                        if (jsoninfos['cat'] in app_settings.CATEGORIES):
+                            cat = jsoninfos['cat']
+                    username = email.split('@')[0]
+                    name = username.split('.')[-1]
+                    today = date.today()
+                    slug = name+"_"+today.strftime('%Y%m')
+                    newpost(slug, cat, email, True)
+                    return HttpResponse('ok')
+        except fernet.InvalidToken:
+            raise BadRequest()
+    raise BadRequest()
+
+
 
 def fileslist(request):
     if(request.user.is_anonymous):
@@ -72,17 +159,12 @@ def fileslist(request):
         elif(action == 'new'):
             slug = request.POST.get("slug", False)
             email = request.POST.get("email", False)
-            if(not slug or not SLUGEX.match(slug)):
-                error="Veuillez indiquez un nom de fichier valide [a-z0-9_]"
-            elif(not os.path.exists(app_settings.CONTENT_DIRECTORY+"/"+selected_cat+"/"+slug+".md")):
-                token = request.POST.get("token", False)
-                if(token and not SingleTokenAccess.objects.filter(slug=selected_cat+"/"+slug).exists()):
-                    print("newtoken")
-                    sta = SingleTokenAccess(slug=selected_cat+"/"+slug, contact=email)
-                    sta.save()
+            token = request.POST.get("token", False)
+            try:
+                newpost(slug,selected_cat, email, token )
                 return redirect('edit', cat=selected_cat, slug=slug)
-            else:
-                error = "Slug already exist ! "
+            except ValueError as err:
+                error=str(err)
     else:
         error = "Vous devez choisir une catégorie"
     return render(

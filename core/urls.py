@@ -22,5 +22,6 @@ urlpatterns = [
     path('edit/<slug:cat>/<slug:slug>', views.edit, name="edit"),
     path('images/<slug:cat>/<slug:name>', views.getImage, name="image"),
     path('fileslist', views.fileslist, name="list"),
+    path('gentoken', views.gentoken, name="gentoken"),
     path('admin/', admin.site.urls),
 ]

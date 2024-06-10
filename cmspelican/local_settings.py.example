@@ -9,6 +9,13 @@ ALLOWED_HOSTS = ['example.fr']
 CSRF_COOKIE_DOMAIN="example.fr"
 CSRF_TRUSTED_ORIGINS=["example.fr"]
 
+#CMS Settings see core.app_settings
+CMS_GENTOKEN_KEY = 'XXXXXXX'
+#CMS_ALLOWED_EMAILS = ['exemple.fr']
+
+#Email used to send the notification (access token)
+NOTIFICATION_SENDER = 'admin@exemple.fr'
+
 # Web acces protections
 ALLOWED_HOSTS = ['localhost']
 if DEBUG == False :

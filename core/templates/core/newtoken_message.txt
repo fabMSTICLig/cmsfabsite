@@ -1,0 +1,7 @@
+Bonjour,
+
+Ci dessous un lien vous donnant la possibilité de créer et modifier un unique article sur le site {{SITE_URL}}.
+Vous pouvez garder ce lien pour des modifications ultérieures mais ne le transmettez le à personne.
+
+Le lien {{SITE_URL}}/cms/edit/{{cat}}/{{slug}}?token={{ token.token }}
+

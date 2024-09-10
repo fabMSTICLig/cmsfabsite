@@ -23,5 +23,6 @@ urlpatterns = [
     path('images/<slug:cat>/<slug:name>', views.getImage, name="image"),
     path('fileslist', views.fileslist, name="list"),
     path('gentoken', views.gentoken, name="gentoken"),
+    path('sendinfos', views.sendinfos, name="sendinfos"),
     path('admin/', admin.site.urls),
 ]

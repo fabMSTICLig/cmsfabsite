@@ -132,12 +132,57 @@ def gentoken(request):
                     username = email.split('@')[0]
                     name = username.split('.')[-1]
                     today = date.today()
-                    slug = name+"_"+today.strftime('%Y%m')
+                    slug = name.replace('-','')+"_"+today.strftime('%Y%m')
                     newpost(slug, cat, email, True)
                     return HttpResponse('ok')
         except fernet.InvalidToken:
             raise BadRequest()
     raise BadRequest()
+
+#End point to send general informations
+# This endpoint as no authentification but use encryption for the message.
+@csrf_exempt
+@require_POST
+def sendinfos(request):
+    f = fernet.Fernet(app_settings.GENTOKEN_KEY)
+    #get the encrypted infos.
+    infos = request.POST.get("infos", "")
+    if(infos):
+        try:
+            jsoninfos = json.loads(f.decrypt(infos))
+            if('email' in jsoninfos):
+                if(re.fullmatch(regexemail, jsoninfos['email'])):
+                    email = jsoninfos['email']
+                    if(app_settings.ALLOWED_EMAILS):
+                        domain = email.split('@')[1]
+                        if(domain not in app_settings.ALLOWED_EMAILS):
+                            raise BadRequest()
+                        context={
+                            "SITE_URL": settings.SITE_URL,
+                        }
+                        subject = render_to_string(
+                            template_name='core/infos_subject.txt',
+                            context=context
+                        ).strip()
+                        text_content = render_to_string(
+                            template_name='core/infos_message.txt',
+                            context=context
+                        )
+                        html_content = render_to_string(
+                            template_name='core/infos_message.html',
+                            context=context
+                        )
+                        msg = EmailMultiAlternatives(subject, text_content, settings.NOTIFICATION_SENDER, [email])
+                        msg.attach_alternative(html_content, "text/html")
+                        try:
+                            msg.send()
+                        except:
+                            print("fail to send infos to "+email)
+                    return HttpResponse('ok')
+        except fernet.InvalidToken:
+            raise BadRequest()
+    raise BadRequest()
+
 
 
 
@@ -148,7 +193,6 @@ def fileslist(request):
     files=[]
     selected_choice=""
     error=""
-    print(request.POST)
     selected_cat = request.POST.get("choice", False)
     action = request.POST.get("action", False)
     if(selected_cat in app_settings.CATEGORIES):
@@ -179,7 +223,6 @@ def fileslist(request):
     )
 
 def getImage(request, cat, name):
-    print("getImage")
     if(cat in app_settings.CATEGORIES):
         with open(app_settings.CONTENT_DIRECTORY+"/"+cat+"/"+name+".jpg", "rb") as f:
             return HttpResponse(f.read(), content_type="image/jpeg")

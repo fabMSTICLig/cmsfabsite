@@ -161,15 +161,15 @@ def sendinfos(request):
                             "SITE_URL": settings.SITE_URL,
                         }
                         subject = render_to_string(
-                            template_name='core/infos_subject.txt',
+                            template_name='core/sendinfos_subject.txt',
                             context=context
                         ).strip()
                         text_content = render_to_string(
-                            template_name='core/infos_message.txt',
+                            template_name='core/sendinfos_message.txt',
                             context=context
                         )
                         html_content = render_to_string(
-                            template_name='core/infos_message.html',
+                            template_name='core/sendinfos_message.html',
                             context=context
                         )
                         msg = EmailMultiAlternatives(subject, text_content, settings.NOTIFICATION_SENDER, [email])
